@@ -1,38 +1,62 @@
-# This is the file where you must work. Write code in the functions, create new functions, 
-# so they work according to the specification
+import csv
 
-# Displays the inventory.
+from collections import Counter
+from tabulate import tabulate
+
 def display_inventory(inventory):
-    pass
+    print("\nInventory: \n")
+    for k, v in inventory.items():
+        print("%s %s" % (v, k))
+    sumofinv = sum(inv.values())
+    print("\nTotal number of items: %s" % sumofinv)
 
-
-# Adds to the inventory dictionary a list of items from added_items.
 def add_to_inventory(inventory, added_items):
-    pass
+    inv_to_count = Counter(inventory)
+    added_to_count = Counter(added_items)
+    newinv = inv_to_count + added_to_count
+    return dict(newinv)
+
+def print_table(inventory, order = ''):
+    print("\nInventory: ")
+    headers = ['count ', 'item name']
+    if order == '':
+        data = [(v,k) for k,v in inventory.items()]
+    elif order == 'count,asc':
+        data = sorted([(v,k) for k,v in inventory.items()])
+    elif order == 'count,desc':
+        data = sorted([(v,k) for k,v in inventory.items()], reverse = True)
+    print(tabulate(data, headers=headers, stralign='right'))
+    sumofinv = sum(inv.values())
+    print("\nTotal number of items: %s \n" % sumofinv)
+
+def import_inventory(inventory, filename = '/home/peter/CodeCool/import_inventory.csv'):
+    with open(filename, 'r', encoding='UTF-8') as f:
+        reader = csv.reader(f)
+        import_list = list(reader)
+        inv_to_count = Counter(inventory)
+        import_to_count = Counter(import_list[0])
+        add_import = inv_to_count + import_to_count
+        return dict(add_import)
+
+def export_inventory(inventory, filename = '/home/peter/CodeCool/export_inventory.csv'):
+    with open(filename, 'w') as f:
+        [f.write('{0},{1}\n'.format(key, value)) for key, value in inventory.items()]
 
 
-# Takes your inventory and displays it in a well-organized table with 
-# each column right-justified. The input argument is an order parameter (string)
-# which works as the following:
-# - None (by default) means the table is unordered
-# - "count,desc" means the table is ordered by count (of items in the inventory) 
-#   in descending order
-# - "count,asc" means the table is ordered by count in ascending order
-def print_table(inventory, order=None):
-    pass
+inv = {'rope': 1, 'torch': 6, 'gold coin': 42, 'dagger': 1, 'arrow': 12}
 
+display_inventory(inv)
 
-# Imports new inventory items from a file
-# The filename comes as an argument, but by default it's 
-# "import_inventory.csv". The import automatically merges items by name.
-# The file format is plain text with comma separated values (CSV).
-def import_inventory(inventory, filename="import_inventory.csv"):
-    pass
+dragon_loot = ['gold coin', 'dagger', 'gold coin', 'gold coin', 'ruby']
 
+inv = add_to_inventory(inv, dragon_loot)
 
-# Exports the inventory into a .csv file.
-# if the filename argument is None it creates and overwrites a file
-# called "export_inventory.csv". The file format is the same plain text 
-# with comma separated values (CSV).
-def export_inventory(inventory, filename="export_inventory.csv"):
-    pass
+display_inventory(inv)
+
+print_table(inv)
+
+inv = import_inventory(inv)
+
+print_table(inv, 'count,desc')
+
+export_inventory(inv)
